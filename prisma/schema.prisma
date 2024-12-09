@@ -13,3 +13,60 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model User {
+  id    Int     @id @default(autoincrement())
+  email String  @unique
+  name  String?
+}
+
+model Categorias {
+  ID_categoria    Int         @id @default(autoincrement())
+  nombre_categoria String      @db.VarChar(255)
+
+  Productos       Productos[] // Relación uno a muchos con Productos
+}
+
+// Modelo para la tabla Productos
+model Productos {
+  ID_producto  Int         @id @default(autoincrement())
+  nombre       String      @db.VarChar(255)
+  descripcion  String?     @db.Text
+  precio       Decimal     @db.Decimal(10, 2)
+  imagen       String?     @db.VarChar(255)
+  categoria_id Int
+  categoria    Categorias  @relation(fields: [categoria_id], references: [ID_categoria])
+
+  Detalles_de_pedidos Detalles_de_pedidos[] // Relación uno a muchos con Detalles_de_pedidos
+}
+
+// Modelo para la tabla Usuarios
+model Usuarios {
+  ID_usuario       Int        @id @default(autoincrement())
+  nombre           String     @db.VarChar(255)
+  correo_electronico String   @unique @db.VarChar(255)
+  contrasena       String     @db.VarChar(255)
+
+  Pedidos          Pedidos[]  // Relación uno a muchos con Pedidos
+}
+
+// Modelo para la tabla Pedidos
+model Pedidos {
+  ID_pedido   Int                  @id @default(autoincrement())
+  fecha       DateTime             @default(now())
+  estado      String?              @db.VarChar(50)
+  usuario_id  Int
+  usuario     Usuarios             @relation(fields: [usuario_id], references: [ID_usuario])
+
+  Detalles_de_pedidos Detalles_de_pedidos[] // Relación uno a muchos con Detalles_de_pedidos
+}
+
+// Modelo para la tabla Detalles_de_pedidos
+model Detalles_de_pedidos {
+  ID_detalle  Int          @id @default(autoincrement())
+  pedido_id   Int
+  producto_id Int
+  cantidad    Int
+
+  pedido      Pedidos      @relation(fields: [pedido_id], references: [ID_pedido])
+  producto    Productos    @relation(fields: [producto_id], references: [ID_producto])
+}
